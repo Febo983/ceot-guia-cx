@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía — Programación de Cirugías CEOT</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f5efe4; color: #1a1a1a; min-height: 100vh; display: flex; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px; min-width: 220px; background: #131313; min-height: 100vh;
+  display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.sidebar-logo h1 { font-size: 0.78rem; font-weight: 800; color: #fff; letter-spacing: 2px; text-transform: uppercase; }
+.sidebar-logo p { font-size: 0.65rem; color: rgba(255,255,255,.35); margin-top: 3px; }
+.sidebar-nav { flex: 1; padding: 10px 0; }
+.nav-item {
+  display: block; width: 100%; padding: 9px 16px; background: none; border: none;
+  text-align: left; font-family: inherit; font-size: 0.78rem; color: rgba(255,255,255,.5);
+  cursor: pointer; transition: background .12s, color .12s; border-left: 2px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.85); }
+.nav-item.active { background: rgba(255,255,255,.1); color: #fff; border-left-color: #c9b99a; }
+.nav-item .nav-num { display: inline-block; width: 16px; font-size: 0.65rem; color: rgba(255,255,255,.25); margin-right: 6px; }
+.sidebar-footer { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.08); }
+.btn-edit-mode {
+  width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); font-size: 0.75rem;
+  font-family: inherit; cursor: pointer; transition: all .15s; font-weight: 600;
+}
+.btn-edit-mode:hover { background: rgba(255,255,255,.12); color: #fff; }
+.btn-edit-mode.active { background: #c9b99a; color: #1a1a1a; border-color: #c9b99a; }
+
+/* MAIN */
+.main { flex: 1; padding: 32px 36px 60px; max-width: 820px; }
+.section { display: none; }
+.section.active { display: block; }
+
+.section-header { margin-bottom: 28px; }
+.section-header h2 { font-size: 1.5rem; font-weight: 800; color: #1a1a1a; }
+.section-header p { font-size: 0.82rem; color: #6b7280; margin-top: 4px; }
+
+/* LINKS RÁPIDOS */
+.links-area { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+.link-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 7px; font-size: 0.78rem; font-weight: 600;
+  text-decoration: none; border: 1.5px solid #d4c9b8; color: #5c4f3a;
+  background: #fdf8f0; cursor: pointer; transition: all .12s; font-family: inherit;
+}
+.link-btn:hover { background: #131313; color: #fff; border-color: #131313; }
+.link-btn.empty { border-style: dashed; color: #9ca3af; background: transparent; }
+.link-btn.empty:hover { border-color: #9ca3af; background: rgba(0,0,0,.03); }
+.link-btn .link-icon { font-size: 0.9rem; }
+
+/* PASOS */
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step {
+  display: flex; gap: 0; position: relative;
+}
+.step:not(:last-child)::before {
+  content: ''; position: absolute; left: 19px; top: 40px; bottom: -2px;
+  width: 1px; background: #ddd5c8; z-index: 0;
+}
+.step-num {
+  width: 40px; min-width: 40px; height: 40px; border-radius: 50%;
+  background: #131313; color: #fff; display: flex; align-items: center;
+  justify-content: center; font-size: 0.8rem; font-weight: 800;
+  margin-top: 2px; position: relative; z-index: 1; flex-shrink: 0;
+}
+.step-body { flex: 1; padding: 2px 0 24px 16px; }
+.step-title {
+  font-size: 0.95rem; font-weight: 700; color: #1a1a1a; line-height: 1.4;
+  min-height: 20px;
+}
+.step-desc {
+  font-size: 0.82rem; color: #4b5563; margin-top: 4px; line-height: 1.6;
+  min-height: 16px;
+}
+.step-rec {
+  background: #fdf3dc; border-left: 3px solid #d4a912; border-radius: 0 6px 6px 0;
+  padding: 8px 12px; margin-top: 8px; font-size: 0.78rem; color: #7c5a0a; line-height: 1.5;
+}
+.step-rec::before { content: '✓ '; font-weight: 700; }
+
+/* SUBSECCIÓN */
+.subsection { margin-top: 28px; margin-bottom: 4px; }
+.subsection h3 {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  color: rgba(0,0,0,.35); padding-bottom: 6px; border-bottom: 1px solid #e5ddd1;
+}
+
+/* EDIT MODE */
+body.edit-mode .step-title,
+body.edit-mode .step-desc,
+body.edit-mode .step-rec { outline: 1.5px dashed #c9b99a; border-radius: 4px; padding: 2px 4px; cursor: text; }
+body.edit-mode .step-title:focus,
+body.edit-mode .step-desc:focus,
+body.edit-mode .step-rec:focus { outline: 2px solid #131313; background: #fffef8; }
+.step-actions { display: none; gap: 6px; margin-top: 8px; }
+body.edit-mode .step-actions { display: flex; }
+.btn-sm {
+  padding: 4px 10px; border-radius: 5px; border: 1px solid #ddd; background: #fff;
+  font-size: 0.7rem; cursor: pointer; font-family: inherit; color: #374151;
+  transition: background .1s;
+}
+.btn-sm:hover { background: #f3f4f6; }
+.btn-sm.danger { border-color: #fecaca; color: #dc2626; }
+.btn-sm.danger:hover { background: #fef2f2; }
+.add-step-btn {
+  display: none; width: 100%; padding: 10px; border: 1.5px dashed #c9b99a;
+  border-radius: 8px; background: transparent; font-size: 0.8rem; color: #9c7e4a;
+  cursor: pointer; font-family: inherit; margin-top: 8px; transition: background .12s;
+}
+.add-step-btn:hover { background: rgba(201,185,154,.1); }
+body.edit-mode .add-step-btn { display: block; }
+
+/* LINK EDIT */
+.link-edit-wrap { display: none; align-items: center; gap: 6px; }
+body.edit-mode .link-edit-wrap { display: flex; flex-wrap: wrap; }
+body.edit-mode .links-area .link-btn { cursor: pointer; }
+.link-edit-wrap input {
+  padding: 5px 9px; border-radius: 6px; border: 1.5px solid #d4c9b8; font-size: 0.75rem;
+  font-family: inherit; background: #fdf8f0; color: #1a1a1a; width: 180px;
+}
+.link-edit-wrap input:focus { border-color: #131313; outline: none; }
+.add-link-btn {
+  display: none; padding: 7px 13px; border-radius: 7px; font-size: 0.78rem;
+  font-weight: 600; border: 1.5px dashed #c9b99a; color: #9c7e4a;
+  background: transparent; cursor: pointer; font-family: inherit; transition: background .12s;
+}
+.add-link-btn:hover { background: rgba(201,185,154,.1); }
+body.edit-mode .add-link-btn { display: inline-flex; align-items: center; gap: 5px; }
+
+/* SAVED TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; background: #131313; color: #fff;
+  padding: 10px 18px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+  opacity: 0; transform: translateY(8px); transition: all .25s; pointer-events: none; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* QUIRÓFANOS TABLE */
+.qx-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.82rem; }
+.qx-table th { background: #1a1a1a; color: #fff; padding: 8px 12px; text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: .5px; }
+.qx-table td { padding: 8px 12px; border-bottom: 1px solid #e5ddd1; }
+.qx-table tr:last-child td { border-bottom: none; }
+.qx-table tr:nth-child(even) td { background: #faf5ee; }
+
+/* MOBILE */
+@media (max-width: 640px) {
+  body { flex-direction: column; }
+  .sidebar { width: 100%; min-width: 0; height: auto; position: relative; }
+  .sidebar-nav { display: flex; flex-wrap: wrap; padding: 8px; gap: 4px; }
+  .nav-item { width: auto; border-radius: 6px; border-left: none; font-size: 0.72rem; padding: 6px 10px; }
+  .nav-item.active { border-bottom: 2px solid #c9b99a; }
+  .main { padding: 20px 16px 40px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <h1>CEOT</h1>
+    <p>Guía de Programación de Cirugías</p>
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav"></nav>
+  <div class="sidebar-footer">
+    <button class="btn-edit-mode" id="btnEditMode" onclick="toggleEditMode()">✏ Editar guía</button>
+  </div>
+</div>
+
+<div class="main" id="mainContent"></div>
+
+<div class="toast" id="toast">Guardado ✓</div>
+
+<script>
+// ── DATOS BASE ──
+var DEFAULT_DATA = {
+  sections: [
+    {
+      id: "programacion",
+      title: "Programación de Cirugías",
+      desc: "Proceso de ingreso, preparación y autorización de cirugías",
+      links: [
+        { label: "Formulario Docs (médicos)", url: "" },
+        { label: "Grilla de programación", url: "" },
+        { label: "Generador de órdenes", url: "" }
+      ],
+      subsections: [
+        {
+          title: "Entrada de pedido de cirugía",
+          steps: [
+            { title: "Recibir datos del paciente", desc: "Apellido, nombre, obra social, DNI, edad, teléfono, fecha de cirugía, códigos, ortopedia.", rec: "" },
+            { title: "Solicitar estudios prequirúrgicos", desc: "Se solicitan en ventanilla al momento de recibir el pedido.", rec: "" },
+            { title: "Médico carga en formulario Docs", desc: "El médico completa el formulario creado por Tobias con los datos de la cirugía.", rec: "" },
+            { title: "Completar grilla de programación", desc: "Acceder al archivo y completar la grilla con los datos del formulario.", rec: "Ambas planillas deberían tener el mismo formato para poder cortar y pegar (no transcribir dato por dato)." }
+          ]
+        },
+        {
+          title: "Preparación de órdenes",
+          steps: [
+            { title: "Derechos sanatoriales e internación", desc: "Incluir fecha de cirugía y código correspondiente.", rec: "" },
+            { title: "Honorarios de anestesia", desc: "Emitir orden con el código de anestesia.", rec: "" },
+            { title: "Honorarios del cirujano", desc: "Código NUN si corresponde.", rec: "" },
+            { title: "Honorarios del ayudante", desc: "Código NUN si corresponde. En reemplazos pueden ser 2 ayudantes.", rec: "" },
+            { title: "Pedido de material", desc: "Especificar el material necesario e indicar la ortopedia.", rec: "Imprimir todas las órdenes y dejar la documentación lista en un mismo momento para optimizar tiempos." }
+          ]
+        },
+        {
+          title: "Autorizaciones",
+          steps: [
+            { title: "Enviar órdenes al paciente por WhatsApp", desc: "Enviar para que el paciente gestione la autorización con su obra social.", rec: "" },
+            { title: "Adjuntar documentación respaldatoria", desc: "Si la obra social solicita informe o resumen de historia clínica, adjuntarlo.", rec: "Enviar siempre documentación respaldatoria (informe de estudio o resumen de HC)." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "tipos",
+      title: "Tipos de Cirugías",
+      desc: "Procedimientos específicos según tipo de cobertura o modalidad",
+      links: [
+        { label: "Página Unión Personal", url: "" },
+        { label: "Presupuestos Clínica", url: "" }
+      ],
+      subsections: [
+        {
+          title: "Obras Sociales con Convenio NUN",
+          steps: [
+            { title: "Verificar convenio", desc: "Obras sociales con convenio NUN: Sancor Salud, OSDE, Swiss Medical, entre otras.", rec: "" }
+          ]
+        },
+        {
+          title: "Cirugías Ambulatorias",
+          steps: [
+            { title: "Cirugía con anestesia local", desc: "No requiere anestesista. Si el médico solicita anestesia, se trata como cirugía con internación.", rec: "" },
+            { title: "Pacientes particulares", desc: "Aclarar intervención de anestesista sin internación.", rec: "" },
+            { title: "Órdenes para OOSS y prepagas", desc: "Incluir: derechos sanatoriales, honorarios del cirujano y ayudante, sala de recupero.", rec: "" }
+          ]
+        },
+        {
+          title: "Cirugías Unión Personal",
+          steps: [
+            { title: "Emitir órdenes", desc: "Confeccionar las órdenes correspondientes.", rec: "" },
+            { title: "Cargar en página de Unión Personal", desc: "Datos requeridos: número de afiliado, versión de credencial, plan, contexto, diagnóstico, código NUN y fecha.", rec: "" },
+            { title: "Verificar autorización", desc: "Controlar que la autorización haya sido aprobada.", rec: "" },
+            { title: "Enviar al paciente por WhatsApp", desc: "Comunicar la autorización y detalles al paciente.", rec: "" }
+          ]
+        },
+        {
+          title: "Cirugías Particulares",
+          steps: [
+            { title: "Elaborar 3 presupuestos", desc: "Honorarios médicos (indicados por cada profesional), presupuesto de clínica y presupuesto de ortopedia.", rec: "" },
+            { title: "Solicitar presupuestos externos", desc: "Pedir presupuesto a la clínica y a las ortopedias.", rec: "" }
+          ]
+        },
+        {
+          title: "Artroscopias",
+          steps: [
+            { title: "Gastos de equipo", desc: "En algunas obras sociales se debe hacer presupuesto por los gastos de equipo de artroscopía.", rec: "" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "parte",
+      title: "Parte Quirúrgico",
+      desc: "Armado del parte y coordinación del día de cirugía",
+      links: [
+        { label: "Programación CX (Sheet)", url: "" },
+        { label: "WA Pacientes", url: "" }
+      ],
+      subsections: [
+        {
+          title: "Armado del parte",
+          steps: [
+            { title: "Médicos arman el orden de quirófano", desc: "Se define el día anterior o dos días antes.", rec: "Situación ideal: 48 horas antes." }
+          ]
+        },
+        {
+          title: "Prioridades en el orden de quirófano",
+          steps: [
+            { title: "Martes", desc: "Deganutti y Trivellini.", rec: "" },
+            { title: "Jueves", desc: "Corelich y Bruni.", rec: "" },
+            { title: "Quirófano 3", desc: "Reemplazos protésicos (RTR y RTC) y cirugías de Fisser en menores.", rec: "" },
+            { title: "Quirófano 6", desc: "Resto de cirugías (Bruni y De la Colina).", rec: "" },
+            { title: "Quirófano 4", desc: "Cirugías con anestesia local (quirófano ambulatorio).", rec: "" }
+          ]
+        },
+        {
+          title: "Día previo a las cirugías",
+          steps: [
+            { title: "Enviar recordatorio por WhatsApp a pacientes", desc: "Contactar a cada paciente programado.", rec: "" },
+            { title: "Verificar autorización de cirugía", desc: "Confirmar que todas las autorizaciones estén aprobadas.", rec: "" },
+            { title: "Confirmar material necesario", desc: "Consultar con el médico o paciente sobre el material requerido.", rec: "" },
+            { title: "Armar el parte con orden y horarios", desc: "Definir el orden definitivo de quirófano con los horarios.", rec: "" },
+            { title: "Confirmar con ortopedias", desc: "Verificar disponibilidad de material y horario de entrega.", rec: "" },
+            { title: "Informar a pacientes", desc: "Comunicar: horario de presentación, ayuno de 8 horas, documentos requeridos.", rec: "Realizar todas las tareas posibles 48 horas antes (no 24)." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "comunicacion",
+      title: "Comunicación por WhatsApp",
+      desc: "Canales de comunicación y contactos clave",
+      links: [
+        { label: "Contactos ortopedias", url: "" },
+        { label: "Directorio obras sociales", url: "" }
+      ],
+      subsections: [
+        {
+          title: "Pacientes",
+          steps: [
+            { title: "Agendados en contactos", desc: "Agregar al paciente a los contactos para envío de órdenes y seguimiento hasta la fecha de cirugía.", rec: "" }
+          ]
+        },
+        {
+          title: "Ortopedias",
+          steps: [
+            { title: "Pedido de presupuestos", desc: "Solicitar presupuesto de materiales a la ortopedia correspondiente.", rec: "" },
+            { title: "Confirmación de materiales", desc: "Confirmar disponibilidad y horario de entrega de los materiales.", rec: "" }
+          ]
+        },
+        {
+          title: "Obras Sociales",
+          steps: [
+            { title: "Gestión de trámites", desc: "Contactar a la obra social para resolver autorizaciones y trámites pendientes.", rec: "Tener un historial con autorizaciones de cada OOSS de cirugías pasadas para agilizar las actuales." }
+          ]
+        },
+        {
+          title: "Clínica — Contactos internos",
+          steps: [
+            { title: "Secretaría de quirófano", desc: "Coordinación del parte y uso de quirófanos.", rec: "" },
+            { title: "Internación", desc: "Coordinación de camas y seguimiento post-cirugía.", rec: "" },
+            { title: "Presupuestos — Gisela y Celina", desc: "Solicitar presupuestos de clínica para cirugías particulares.", rec: "" },
+            { title: "Admisión — María y Brenda", desc: "Coordinación de admisión de pacientes.", rec: "" },
+            { title: "Daniel Endoscopía", desc: "Coordinación para cirugías que requieran endoscopía.", rec: "" },
+            { title: "Daniela ART", desc: "Gestión de cirugías cubiertas por ART.", rec: "" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "tareas",
+      title: "Tareas Diarias",
+      desc: "Resumen de responsabilidades diarias de la oficina de cirugías",
+      links: [
+        { label: "Drive cirugías", url: "" },
+        { label: "Facturación 14 de Julio", url: "" }
+      ],
+      subsections: [
+        {
+          title: "Gestión de Órdenes",
+          steps: [
+            { title: "Confeccionar órdenes de cirugía", desc: "Emitir todas las órdenes necesarias para cada cirugía del día/semana.", rec: "" },
+            { title: "Pedido de presupuestos", desc: "Solicitar presupuestos a clínica y ortopedias según necesidad.", rec: "" }
+          ]
+        },
+        {
+          title: "Comunicación con Pacientes",
+          steps: [
+            { title: "WhatsApp con pacientes", desc: "Mantener contacto activo: envío de órdenes, recordatorios y respuesta a consultas.", rec: "" },
+            { title: "Seguimiento de autorización", desc: "Verificar estado de autorizaciones pendientes.", rec: "" },
+            { title: "Evacuación de dudas", desc: "Responder consultas de los pacientes sobre el proceso.", rec: "" }
+          ]
+        },
+        {
+          title: "Coordinación Interna",
+          steps: [
+            { title: "Comunicación con quirófano", desc: "Coordinar parte, cambios y novedades del día.", rec: "" },
+            { title: "Comunicación con internación", desc: "Coordinar camas y seguimiento de internados.", rec: "" },
+            { title: "Comunicación con ortopedias", desc: "Confirmación de materiales y entregas.", rec: "" }
+          ]
+        },
+        {
+          title: "Gestión Administrativa",
+          steps: [
+            { title: "Comunicación con obras sociales", desc: "Gestión de autorizaciones y trámites.", rec: "" },
+            { title: "Carga de cirugías al Drive", desc: "Registrar las cirugías realizadas en el archivo correspondiente.", rec: "" }
+          ]
+        },
+        {
+          title: "Tareas Adicionales",
+          steps: [
+            { title: "Recaudación de dinero", desc: "Gestión de cobros relacionados con cirugías.", rec: "" },
+            { title: "Armado y pago de sueldos", desc: "Preparación y pago de haberes del personal.", rec: "" },
+            { title: "Retiro de cheques de honorarios", desc: "Retirar los cheques de honorarios médicos.", rec: "" },
+            { title: "Facturación 14 de Julio", desc: "Gestionar la facturación correspondiente.", rec: "" }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+// ── ESTADO ──
+var data = null;
+var editMode = false;
+var currentSection = 0;
+
+function loadData() {
+  try {
+    var raw = localStorage.getItem("ceot_guia_cx");
+    if (raw) { data = JSON.parse(raw); return; }
+  } catch(e) {}
+  data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+
+function saveData() {
+  localStorage.setItem("ceot_guia_cx", JSON.stringify(data));
+  showToast();
+}
+
+function showToast() {
+  var t = document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(function() { t.classList.remove("show"); }, 1800);
+}
+
+// ── RENDER ──
+function renderAll() {
+  renderSidebar();
+  renderContent();
+}
+
+function renderSidebar() {
+  var nav = document.getElementById("sidebarNav");
+  nav.innerHTML = "";
+  data.sections.forEach(function(sec, i) {
+    var btn = document.createElement("button");
+    btn.className = "nav-item" + (i === currentSection ? " active" : "");
+    btn.innerHTML = '<span class="nav-num">' + (i+1) + '</span>' + sec.title;
+    btn.onclick = (function(idx) { return function() { currentSection = idx; renderAll(); }; })(i);
+    nav.appendChild(btn);
+  });
+}
+
+function renderContent() {
+  var main = document.getElementById("mainContent");
+  main.innerHTML = "";
+  var sec = data.sections[currentSection];
+
+  // Header
+  var hdr = document.createElement("div");
+  hdr.className = "section-header";
+  var h2 = document.createElement("h2");
+  h2.textContent = sec.title;
+  var descP = document.createElement("p");
+  descP.textContent = sec.desc;
+  if (editMode) {
+    h2.contentEditable = "true"; h2.style.cursor = "text";
+    h2.oninput = function() { sec.title = this.textContent; };
+    h2.onblur = function() { saveData(); renderSidebar(); };
+    descP.contentEditable = "true"; descP.style.cursor = "text";
+    descP.oninput = function() { sec.desc = this.textContent; };
+    descP.onblur = function() { saveData(); };
+  }
+  hdr.appendChild(h2);
+  hdr.appendChild(descP);
+  main.appendChild(hdr);
+
+  // Links
+  var linksArea = document.createElement("div");
+  linksArea.className = "links-area";
+  linksArea.id = "linksArea";
+  sec.links.forEach(function(lk, li) {
+    linksArea.appendChild(renderLink(lk, li));
+  });
+  // Add link button
+  var addLinkBtn = document.createElement("button");
+  addLinkBtn.className = "add-link-btn";
+  addLinkBtn.innerHTML = '+ Agregar link';
+  addLinkBtn.onclick = function() {
+    sec.links.push({ label: "Nuevo link", url: "" });
+    saveData(); renderContent();
+  };
+  linksArea.appendChild(addLinkBtn);
+  main.appendChild(linksArea);
+
+  // Subsections & steps
+  sec.subsections.forEach(function(sub, si) {
+    var subEl = document.createElement("div");
+    subEl.className = "subsection";
+    var h3 = document.createElement("h3");
+    h3.textContent = sub.title;
+    if (editMode) {
+      h3.contentEditable = "true";
+      h3.style.cursor = "text";
+      h3.oninput = (function(sIdx) { return function() { sec.subsections[sIdx].title = this.textContent; }; })(si);
+      h3.onblur = function() { saveData(); };
+    }
+    subEl.appendChild(h3);
+    main.appendChild(subEl);
+
+    var stepsEl = document.createElement("div");
+    stepsEl.className = "steps";
+    sub.steps.forEach(function(step, sti) {
+      stepsEl.appendChild(renderStep(step, si, sti));
+    });
+
+    // Add step
+    var addBtn = document.createElement("button");
+    addBtn.className = "add-step-btn";
+    addBtn.textContent = "+ Agregar paso";
+    addBtn.onclick = (function(sIdx) { return function() {
+      sec.subsections[sIdx].steps.push({ title: "Nuevo paso", desc: "Descripción...", rec: "" });
+      saveData(); renderContent();
+    }; })(si);
+    stepsEl.appendChild(addBtn);
+    main.appendChild(stepsEl);
+  });
+}
+
+function renderLink(lk, li) {
+  var wrap = document.createElement("div");
+  wrap.style.display = "contents";
+
+  var sec = data.sections[currentSection];
+
+  if (editMode) {
+    // Edit wrap
+    var editWrap = document.createElement("div");
+    editWrap.className = "link-edit-wrap";
+
+    var nameInput = document.createElement("input");
+    nameInput.value = lk.label;
+    nameInput.placeholder = "Nombre del link";
+    nameInput.onchange = function() { sec.links[li].label = this.value; saveData(); };
+
+    var urlInput = document.createElement("input");
+    urlInput.value = lk.url;
+    urlInput.placeholder = "https://...";
+    urlInput.style.width = "220px";
+    urlInput.onchange = function() { sec.links[li].url = this.value; saveData(); };
+
+    var delBtn = document.createElement("button");
+    delBtn.className = "btn-sm danger";
+    delBtn.textContent = "✕";
+    delBtn.onclick = function() { sec.links.splice(li, 1); saveData(); renderContent(); };
+
+    editWrap.appendChild(nameInput);
+    editWrap.appendChild(urlInput);
+    editWrap.appendChild(delBtn);
+    return editWrap;
+  } else {
+    var btn = document.createElement("a");
+    btn.className = "link-btn" + (lk.url ? "" : " empty");
+    btn.innerHTML = '<span class="link-icon">🔗</span>' + lk.label;
+    if (lk.url) { btn.href = lk.url; btn.target = "_blank"; btn.rel = "noopener"; }
+    else { btn.href = "#"; btn.title = "URL pendiente — activá edición para completar"; }
+    return btn;
+  }
+}
+
+function renderStep(step, si, sti) {
+  var sec = data.sections[currentSection];
+  var stepNum = sti + 1;
+
+  var el = document.createElement("div");
+  el.className = "step";
+
+  var numEl = document.createElement("div");
+  numEl.className = "step-num";
+  numEl.textContent = stepNum;
+  el.appendChild(numEl);
+
+  var body = document.createElement("div");
+  body.className = "step-body";
+
+  var titleEl = document.createElement("div");
+  titleEl.className = "step-title";
+  titleEl.textContent = step.title;
+  if (editMode) {
+    titleEl.contentEditable = "true";
+    titleEl.oninput = function() { sec.subsections[si].steps[sti].title = this.textContent; };
+    titleEl.onblur = function() { saveData(); };
+  }
+  body.appendChild(titleEl);
+
+  if (step.desc) {
+    var descEl = document.createElement("div");
+    descEl.className = "step-desc";
+    descEl.textContent = step.desc;
+    if (editMode) {
+      descEl.contentEditable = "true";
+      descEl.oninput = function() { sec.subsections[si].steps[sti].desc = this.textContent; };
+      descEl.onblur = function() { saveData(); };
+    }
+    body.appendChild(descEl);
+  }
+
+  if (step.rec) {
+    var recEl = document.createElement("div");
+    recEl.className = "step-rec";
+    recEl.textContent = step.rec;
+    if (editMode) {
+      recEl.contentEditable = "true";
+      recEl.oninput = function() { sec.subsections[si].steps[sti].rec = this.textContent.replace(/^✓\s*/,''); };
+      recEl.onblur = function() { saveData(); };
+    }
+    body.appendChild(recEl);
+  }
+
+  // Edit actions
+  var actions = document.createElement("div");
+  actions.className = "step-actions";
+
+  if (editMode) {
+    if (!step.rec) {
+      var addRecBtn = document.createElement("button");
+      addRecBtn.className = "btn-sm";
+      addRecBtn.textContent = "+ Recomendación";
+      addRecBtn.onclick = (function(sIdx, stIdx) { return function() {
+        sec.subsections[sIdx].steps[stIdx].rec = "Recomendación...";
+        saveData(); renderContent();
+      }; })(si, sti);
+      actions.appendChild(addRecBtn);
+    }
+
+    var delStepBtn = document.createElement("button");
+    delStepBtn.className = "btn-sm danger";
+    delStepBtn.textContent = "Eliminar paso";
+    delStepBtn.onclick = (function(sIdx, stIdx) { return function() {
+      sec.subsections[sIdx].steps.splice(stIdx, 1);
+      saveData(); renderContent();
+    }; })(si, sti);
+    actions.appendChild(delStepBtn);
+  }
+
+  body.appendChild(actions);
+  el.appendChild(body);
+  return el;
+}
+
+function toggleEditMode() {
+  editMode = !editMode;
+  document.body.classList.toggle("edit-mode", editMode);
+  var btn = document.getElementById("btnEditMode");
+  btn.textContent = editMode ? "✓ Guardar y salir" : "✏ Editar guía";
+  btn.classList.toggle("active", editMode);
+  renderContent();
+}
+
+// ── INIT ──
+loadData();
+renderAll();
+</script>
+</body>
+</html>
