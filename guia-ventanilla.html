@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía — Secretaría de Ventanilla CEOT</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f5efe4; color: #1a1a1a; min-height: 100vh; display: flex; }
+
+.sidebar {
+  width: 220px; min-width: 220px; background: #131313; min-height: 100vh;
+  display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-logo { padding: 20px 16px 14px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.sidebar-logo h1 { font-size: 0.78rem; font-weight: 800; color: #fff; letter-spacing: 2px; text-transform: uppercase; }
+.sidebar-logo p { font-size: 0.65rem; color: rgba(255,255,255,.35); margin-top: 3px; }
+.sidebar-nav { flex: 1; padding: 10px 0; }
+.nav-item {
+  display: block; width: 100%; padding: 9px 16px; background: none; border: none;
+  text-align: left; font-family: inherit; font-size: 0.78rem; color: rgba(255,255,255,.5);
+  cursor: pointer; transition: background .12s, color .12s; border-left: 2px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.85); }
+.nav-item.active { background: rgba(255,255,255,.1); color: #fff; border-left-color: #c9b99a; }
+.nav-item .nav-num { display: inline-block; width: 16px; font-size: 0.65rem; color: rgba(255,255,255,.25); margin-right: 6px; }
+.sidebar-footer { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.08); }
+.btn-edit-mode {
+  width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); font-size: 0.75rem;
+  font-family: inherit; cursor: pointer; transition: all .15s; font-weight: 600;
+}
+.btn-edit-mode:hover { background: rgba(255,255,255,.12); color: #fff; }
+.btn-edit-mode.active { background: #c9b99a; color: #1a1a1a; border-color: #c9b99a; }
+
+.main { flex: 1; padding: 32px 36px 60px; max-width: 820px; }
+.section { display: none; }
+.section.active { display: block; }
+.section-header { margin-bottom: 28px; }
+.section-header h2 { font-size: 1.5rem; font-weight: 800; color: #1a1a1a; }
+.section-header p { font-size: 0.82rem; color: #6b7280; margin-top: 4px; }
+
+.links-area { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+.link-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border-radius: 7px; font-size: 0.78rem; font-weight: 600;
+  text-decoration: none; border: 1.5px solid #d4c9b8; color: #5c4f3a;
+  background: #fdf8f0; cursor: pointer; transition: all .12s; font-family: inherit;
+}
+.link-btn:hover { background: #131313; color: #fff; border-color: #131313; }
+.link-btn.empty { border-style: dashed; color: #9ca3af; background: transparent; }
+.link-btn.empty:hover { border-color: #9ca3af; background: rgba(0,0,0,.03); }
+.link-btn .link-icon { font-size: 0.9rem; }
+
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step { display: flex; gap: 0; position: relative; }
+.step:not(:last-child)::before {
+  content: ''; position: absolute; left: 19px; top: 40px; bottom: -2px;
+  width: 1px; background: #ddd5c8; z-index: 0;
+}
+.step-num {
+  width: 40px; min-width: 40px; height: 40px; border-radius: 50%;
+  background: #131313; color: #fff; display: flex; align-items: center;
+  justify-content: center; font-size: 0.8rem; font-weight: 800;
+  margin-top: 2px; position: relative; z-index: 1; flex-shrink: 0;
+}
+.step-body { flex: 1; padding: 2px 0 24px 16px; }
+.step-title { font-size: 0.95rem; font-weight: 700; color: #1a1a1a; line-height: 1.4; min-height: 20px; }
+.step-desc { font-size: 0.82rem; color: #4b5563; margin-top: 4px; line-height: 1.6; min-height: 16px; }
+.step-rec {
+  background: #fdf3dc; border-left: 3px solid #d4a912; border-radius: 0 6px 6px 0;
+  padding: 8px 12px; margin-top: 8px; font-size: 0.78rem; color: #7c5a0a; line-height: 1.5;
+}
+.step-rec::before { content: '✓ '; font-weight: 700; }
+
+.subsection { margin-top: 28px; margin-bottom: 4px; }
+.subsection h3 {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  color: rgba(0,0,0,.35); padding-bottom: 6px; border-bottom: 1px solid #e5ddd1;
+}
+
+body.edit-mode .step-title,
+body.edit-mode .step-desc,
+body.edit-mode .step-rec { outline: 1.5px dashed #c9b99a; border-radius: 4px; padding: 2px 4px; cursor: text; }
+body.edit-mode .step-title:focus,
+body.edit-mode .step-desc:focus,
+body.edit-mode .step-rec:focus { outline: 2px solid #131313; background: #fffef8; }
+.step-actions { display: none; gap: 6px; margin-top: 8px; }
+body.edit-mode .step-actions { display: flex; }
+.btn-sm {
+  padding: 4px 10px; border-radius: 5px; border: 1px solid #ddd; background: #fff;
+  font-size: 0.7rem; cursor: pointer; font-family: inherit; color: #374151; transition: background .1s;
+}
+.btn-sm:hover { background: #f3f4f6; }
+.btn-sm.danger { border-color: #fecaca; color: #dc2626; }
+.btn-sm.danger:hover { background: #fef2f2; }
+.add-step-btn {
+  display: none; width: 100%; padding: 10px; border: 1.5px dashed #c9b99a;
+  border-radius: 8px; background: transparent; font-size: 0.8rem; color: #9c7e4a;
+  cursor: pointer; font-family: inherit; margin-top: 8px; transition: background .12s;
+}
+.add-step-btn:hover { background: rgba(201,185,154,.1); }
+body.edit-mode .add-step-btn { display: block; }
+
+.link-edit-wrap { display: none; align-items: center; gap: 6px; }
+body.edit-mode .link-edit-wrap { display: flex; flex-wrap: wrap; }
+.link-edit-wrap input {
+  padding: 5px 9px; border-radius: 6px; border: 1.5px solid #d4c9b8; font-size: 0.75rem;
+  font-family: inherit; background: #fdf8f0; color: #1a1a1a; width: 180px;
+}
+.link-edit-wrap input:focus { border-color: #131313; outline: none; }
+.add-link-btn {
+  display: none; padding: 7px 13px; border-radius: 7px; font-size: 0.78rem;
+  font-weight: 600; border: 1.5px dashed #c9b99a; color: #9c7e4a;
+  background: transparent; cursor: pointer; font-family: inherit; transition: background .12s;
+}
+.add-link-btn:hover { background: rgba(201,185,154,.1); }
+body.edit-mode .add-link-btn { display: inline-flex; align-items: center; gap: 5px; }
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px; background: #131313; color: #fff;
+  padding: 10px 18px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+  opacity: 0; transform: translateY(8px); transition: all .25s; pointer-events: none; z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 640px) {
+  body { flex-direction: column; }
+  .sidebar { width: 100%; min-width: 0; height: auto; position: relative; }
+  .sidebar-nav { display: flex; flex-wrap: wrap; padding: 8px; gap: 4px; }
+  .nav-item { width: auto; border-radius: 6px; border-left: none; font-size: 0.72rem; padding: 6px 10px; }
+  .nav-item.active { border-bottom: 2px solid #c9b99a; }
+  .main { padding: 20px 16px 40px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <h1>CEOT</h1>
+    <p>Guía de Secretaría de Ventanilla</p>
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav"></nav>
+  <div class="sidebar-footer">
+    <button class="btn-edit-mode" id="btnEditMode" onclick="toggleEditMode()">✏ Editar guía</button>
+  </div>
+</div>
+
+<div class="main" id="mainContent"></div>
+<div class="toast" id="toast">Guardado ✓</div>
+
+<script>
+var DEFAULT_DATA = {
+  sections: [
+    {
+      id: "atencion",
+      title: "Atención al Paciente",
+      desc: "Gestión de turnos y atención presencial en ventanilla",
+      links: [
+        { label: "Sistema de turnos", url: "" },
+        { label: "Agenda web", url: "" }
+      ],
+      subsections: [
+        {
+          title: "Atención presencial",
+          steps: [
+            { title: "Atención presencial", desc: "Recibir y orientar al paciente que se presenta en ventanilla.", rec: "" },
+            { title: "Gestión de turnos", desc: "Asignar, modificar o cancelar turnos según solicitud del paciente.", rec: "" },
+            { title: "Asignación de turnos presenciales", desc: "Registrar el turno en el sistema para el consultorio correspondiente.", rec: "" }
+          ]
+        },
+        {
+          title: "Turnos por WhatsApp",
+          steps: [
+            { title: "Asignación de turnos vía WhatsApp", desc: "Atender líneas 452 y 420 en simultáneo — trabajo compartido entre 4 secretarias en consultorios 11 y 14.", rec: "Coordinar con el equipo para evitar superposición de asignaciones." },
+            { title: "Anulación y reprogramación de agendas", desc: "Gestionar cancelaciones y cambios de turno en consultorios 11 y 14.", rec: "" },
+            { title: "Pasar turnos de web a Sistema", desc: "Revisar los turnos ingresados por la web y migrarlos al sistema interno.", rec: "" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "documentacion",
+      title: "Documentación y Autorizaciones",
+      desc: "Recepción de bonos, autorizaciones y confección de órdenes",
+      links: [
+        { label: "Traditum", url: "" },
+        { label: "OSDE web", url: "" },
+        { label: "Centro Médico web", url: "" },
+        { label: "Swiss Medical web", url: "" }
+      ],
+      subsections: [
+        {
+          title: "Bonos y diferenciales",
+          steps: [
+            { title: "Recepción de bonos y cobro de diferenciales", desc: "Recibir los bonos de los pacientes y gestionar el cobro del diferencial correspondiente.", rec: "" }
+          ]
+        },
+        {
+          title: "Autorizaciones web",
+          steps: [
+            { title: "Autorización de bonos de consulta por web", desc: "Ingresar a los portales de Traditum, OSDE, Centro Médico y Swiss Medical para autorizar los bonos de consulta.", rec: "" },
+            { title: "Autorización de infiltraciones por web", desc: "Gestionar la autorización online adjuntando el pedido médico y el protocolo quirúrgico correspondiente.", rec: "Verificar que el pedido médico y el protocolo estén completos antes de enviar." }
+          ]
+        },
+        {
+          title: "Recetas y órdenes",
+          steps: [
+            { title: "Confección de recetas y órdenes de estudios", desc: "Preparar recetas médicas y órdenes de estudios. En algunos casos también implica gestión de turnos para esos estudios.", rec: "" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "materiales",
+      title: "Gestión de Materiales y Suministros",
+      desc: "Control de insumos, papelería y equipamiento de consultorios",
+      links: [
+        { label: "Lista de materiales", url: "" },
+        { label: "Contacto farmacia", url: "" }
+      ],
+      subsections: [
+        {
+          title: "Insumos y farmacia",
+          steps: [
+            { title: "Lista y búsqueda de materiales", desc: "Mantener actualizada la lista de materiales necesarios y gestionar su búsqueda o pedido.", rec: "" },
+            { title: "Lista de farmacia y búsqueda de insumos", desc: "Controlar el stock de insumos de farmacia y solicitar reposición cuando sea necesario.", rec: "" }
+          ]
+        },
+        {
+          title: "Equipamiento de consultorios",
+          steps: [
+            { title: "Equipamiento con materiales y papelería", desc: "Abastecer los consultorios de manera alternada, respetando el horario de inicio y finalización de cada médico. Anticiparse a los faltantes.", rec: "Proveer lo necesario antes de que el médico inicie su turno para evitar interrupciones." },
+            { title: "Lista de librería y material de higiene", desc: "Controlar y reponer material de librería y productos de higiene en baños.", rec: "" },
+            { title: "Lista de recetarios y turneros", desc: "Verificar stock de talonarios de recetas y turneros y solicitar reposición cuando corresponda.", rec: "" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "tareas",
+      title: "Otras Tareas Administrativas",
+      desc: "Gestión de estudios, historias clínicas y coordinación interna",
+      links: [
+        { label: "Archivo HC", url: "" },
+        { label: "Contacto mantenimiento", url: "" }
+      ],
+      subsections: [
+        {
+          title: "Estudios y medicación",
+          steps: [
+            { title: "Pedido de resultados de estudios", desc: "Solicitar resultados de imágenes, laboratorio y patología cuando el médico lo requiere.", rec: "" },
+            { title: "Pedido de turnos para estudios prequirúrgicos", desc: "Gestionar turnos para estudios prequirúrgicos cuando el médico lo solicita.", rec: "" },
+            { title: "Pedido de medicación a laboratorios", desc: "Realizar pedidos de medicación a laboratorios a solicitud de los médicos.", rec: "" }
+          ]
+        },
+        {
+          title: "Gestión administrativa",
+          steps: [
+            { title: "Confección de planillas de alta complejidad", desc: "Completar y gestionar las planillas correspondientes a prestaciones de alta complejidad.", rec: "" },
+            { title: "Pedido y devolución de historias clínicas a archivo", desc: "Solicitar las HC necesarias al archivo y devolver las utilizadas en tiempo y forma.", rec: "" },
+            { title: "Comunicación con mantenimiento/sistemas", desc: "Reportar desperfectos o problemas técnicos al área de mantenimiento o sistemas.", rec: "" },
+            { title: "Otras tareas del equipo administrativo", desc: "Colaborar en todas las tareas que surjan y aporten al buen funcionamiento del equipo.", rec: "" }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+var data = null;
+var editMode = false;
+var currentSection = 0;
+
+function loadData() {
+  try {
+    var raw = localStorage.getItem("ceot_guia_ventanilla");
+    if (raw) { data = JSON.parse(raw); return; }
+  } catch(e) {}
+  data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+
+function saveData() {
+  localStorage.setItem("ceot_guia_ventanilla", JSON.stringify(data));
+  showToast();
+}
+
+function showToast() {
+  var t = document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(function() { t.classList.remove("show"); }, 1800);
+}
+
+function renderAll() { renderSidebar(); renderContent(); }
+
+function renderSidebar() {
+  var nav = document.getElementById("sidebarNav");
+  nav.innerHTML = "";
+  data.sections.forEach(function(sec, i) {
+    var btn = document.createElement("button");
+    btn.className = "nav-item" + (i === currentSection ? " active" : "");
+    btn.innerHTML = '<span class="nav-num">' + (i+1) + '</span>' + sec.title;
+    btn.onclick = (function(idx) { return function() { currentSection = idx; renderAll(); }; })(i);
+    nav.appendChild(btn);
+  });
+}
+
+function renderContent() {
+  var main = document.getElementById("mainContent");
+  main.innerHTML = "";
+  var sec = data.sections[currentSection];
+
+  var hdr = document.createElement("div");
+  hdr.className = "section-header";
+  var h2 = document.createElement("h2");
+  h2.textContent = sec.title;
+  var descP = document.createElement("p");
+  descP.textContent = sec.desc;
+  if (editMode) {
+    h2.contentEditable = "true"; h2.style.cursor = "text";
+    h2.oninput = function() { sec.title = this.textContent; };
+    h2.onblur = function() { saveData(); renderSidebar(); };
+    descP.contentEditable = "true"; descP.style.cursor = "text";
+    descP.oninput = function() { sec.desc = this.textContent; };
+    descP.onblur = function() { saveData(); };
+  }
+  hdr.appendChild(h2); hdr.appendChild(descP);
+  main.appendChild(hdr);
+
+  var linksArea = document.createElement("div");
+  linksArea.className = "links-area";
+  sec.links.forEach(function(lk, li) { linksArea.appendChild(renderLink(lk, li)); });
+  var addLinkBtn = document.createElement("button");
+  addLinkBtn.className = "add-link-btn";
+  addLinkBtn.innerHTML = '+ Agregar link';
+  addLinkBtn.onclick = function() { sec.links.push({ label: "Nuevo link", url: "" }); saveData(); renderContent(); };
+  linksArea.appendChild(addLinkBtn);
+  main.appendChild(linksArea);
+
+  sec.subsections.forEach(function(sub, si) {
+    var subEl = document.createElement("div");
+    subEl.className = "subsection";
+    var h3 = document.createElement("h3");
+    h3.textContent = sub.title;
+    if (editMode) {
+      h3.contentEditable = "true"; h3.style.cursor = "text";
+      h3.oninput = (function(sIdx) { return function() { sec.subsections[sIdx].title = this.textContent; }; })(si);
+      h3.onblur = function() { saveData(); };
+    }
+    subEl.appendChild(h3);
+    main.appendChild(subEl);
+
+    var stepsEl = document.createElement("div");
+    stepsEl.className = "steps";
+    sub.steps.forEach(function(step, sti) { stepsEl.appendChild(renderStep(step, si, sti)); });
+
+    var addBtn = document.createElement("button");
+    addBtn.className = "add-step-btn";
+    addBtn.textContent = "+ Agregar paso";
+    addBtn.onclick = (function(sIdx) { return function() {
+      sec.subsections[sIdx].steps.push({ title: "Nuevo paso", desc: "Descripción...", rec: "" });
+      saveData(); renderContent();
+    }; })(si);
+    stepsEl.appendChild(addBtn);
+    main.appendChild(stepsEl);
+  });
+}
+
+function renderLink(lk, li) {
+  var sec = data.sections[currentSection];
+  if (editMode) {
+    var editWrap = document.createElement("div");
+    editWrap.className = "link-edit-wrap";
+    var nameInput = document.createElement("input");
+    nameInput.value = lk.label; nameInput.placeholder = "Nombre del link";
+    nameInput.onchange = function() { sec.links[li].label = this.value; saveData(); };
+    var urlInput = document.createElement("input");
+    urlInput.value = lk.url; urlInput.placeholder = "https://..."; urlInput.style.width = "220px";
+    urlInput.onchange = function() { sec.links[li].url = this.value; saveData(); };
+    var delBtn = document.createElement("button");
+    delBtn.className = "btn-sm danger"; delBtn.textContent = "✕";
+    delBtn.onclick = function() { sec.links.splice(li, 1); saveData(); renderContent(); };
+    editWrap.appendChild(nameInput); editWrap.appendChild(urlInput); editWrap.appendChild(delBtn);
+    return editWrap;
+  } else {
+    var btn = document.createElement("a");
+    btn.className = "link-btn" + (lk.url ? "" : " empty");
+    btn.innerHTML = '<span class="link-icon">🔗</span>' + lk.label;
+    if (lk.url) { btn.href = lk.url; btn.target = "_blank"; btn.rel = "noopener"; }
+    else { btn.href = "#"; btn.title = "URL pendiente"; }
+    return btn;
+  }
+}
+
+function renderStep(step, si, sti) {
+  var sec = data.sections[currentSection];
+  var el = document.createElement("div");
+  el.className = "step";
+  var numEl = document.createElement("div");
+  numEl.className = "step-num";
+  numEl.textContent = sti + 1;
+  el.appendChild(numEl);
+  var body = document.createElement("div");
+  body.className = "step-body";
+
+  var titleEl = document.createElement("div");
+  titleEl.className = "step-title";
+  titleEl.textContent = step.title;
+  if (editMode) {
+    titleEl.contentEditable = "true";
+    titleEl.oninput = function() { sec.subsections[si].steps[sti].title = this.textContent; };
+    titleEl.onblur = function() { saveData(); };
+  }
+  body.appendChild(titleEl);
+
+  if (step.desc) {
+    var descEl = document.createElement("div");
+    descEl.className = "step-desc";
+    descEl.textContent = step.desc;
+    if (editMode) {
+      descEl.contentEditable = "true";
+      descEl.oninput = function() { sec.subsections[si].steps[sti].desc = this.textContent; };
+      descEl.onblur = function() { saveData(); };
+    }
+    body.appendChild(descEl);
+  }
+
+  if (step.rec) {
+    var recEl = document.createElement("div");
+    recEl.className = "step-rec";
+    recEl.textContent = step.rec;
+    if (editMode) {
+      recEl.contentEditable = "true";
+      recEl.oninput = function() { sec.subsections[si].steps[sti].rec = this.textContent.replace(/^✓\s*/,''); };
+      recEl.onblur = function() { saveData(); };
+    }
+    body.appendChild(recEl);
+  }
+
+  var actions = document.createElement("div");
+  actions.className = "step-actions";
+  if (editMode) {
+    if (!step.rec) {
+      var addRecBtn = document.createElement("button");
+      addRecBtn.className = "btn-sm"; addRecBtn.textContent = "+ Recomendación";
+      addRecBtn.onclick = (function(sIdx, stIdx) { return function() {
+        sec.subsections[sIdx].steps[stIdx].rec = "Recomendación...";
+        saveData(); renderContent();
+      }; })(si, sti);
+      actions.appendChild(addRecBtn);
+    }
+    var delStepBtn = document.createElement("button");
+    delStepBtn.className = "btn-sm danger"; delStepBtn.textContent = "Eliminar paso";
+    delStepBtn.onclick = (function(sIdx, stIdx) { return function() {
+      sec.subsections[sIdx].steps.splice(stIdx, 1);
+      saveData(); renderContent();
+    }; })(si, sti);
+    actions.appendChild(delStepBtn);
+  }
+  body.appendChild(actions);
+  el.appendChild(body);
+  return el;
+}
+
+function toggleEditMode() {
+  editMode = !editMode;
+  document.body.classList.toggle("edit-mode", editMode);
+  var btn = document.getElementById("btnEditMode");
+  btn.textContent = editMode ? "✓ Guardar y salir" : "✏ Editar guía";
+  btn.classList.toggle("active", editMode);
+  renderContent();
+}
+
+loadData();
+renderAll();
+</script>
+</body>
+</html>
